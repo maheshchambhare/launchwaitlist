@@ -1,8 +1,6 @@
 const ScreenWrapper = ({ children }: { children?: React.ReactNode }) => {
   return (
-    <div className="w-[95%]  mMax:w-[80%] lMax:w-[70%] mx-auto ">
-      {children}
-    </div>
+    <div className="w-[95%]  lg:w-[80%] xl:w-[70%] mx-auto ">{children}</div>
   );
 };
 

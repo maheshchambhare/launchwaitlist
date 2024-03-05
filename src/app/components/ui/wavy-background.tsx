@@ -66,7 +66,7 @@ export const WavyBackground = ({
     "#818cf8",
     "#c084fc",
     "#e879f9",
-    "#22d3ee"
+    "#22d3ee",
   ];
   const drawWave = (n: number) => {
     nt += getSpeed();
@@ -102,16 +102,16 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "h-screen flex flex-col items-center justify-center",
+        "h-screen  flex  flex-col items-center justify-center",
         containerClassName
       )}
     >
       <canvas
-        className="absolute inset-0 z-0"
+        className="absolute  inset-0 z-[-10]"
         ref={canvasRef}
         id="canvas"
       ></canvas>
-      <div className={cn("relative z-10", className)} {...props}>
+      <div className={cn("relative  z-10", className)} {...props}>
         {children}
       </div>
     </div>

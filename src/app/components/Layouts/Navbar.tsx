@@ -1,14 +1,24 @@
+"use client";
 import React from "react";
+import { Twitter, Linkedin } from "lucide-react";
+import Link from "next/link";
 
 function Navbar() {
   return (
-    <div className="w-[95%]  mMax:w-[80%] lMax:w-[70%] mx-auto h-[60px]  flex justify-between items-center  ">
-      <div className=" w-[50%] h-full ">
-        <h1 className="flex font-brand font-[400] text-[30px] text-textPrimary items-center">
+    <div className="w-[95%] z-10  mMax:w-[80%] lMax:w-[70%] mt-4 mx-auto h-[60px]  flex xsm:flex-col md:flex-row justify-between items-center  ">
+      <div className="xsm:w-full md:w-[50%] h-full ">
+        <h1 className=" w-full font-mont xsm:text-center md:text-left xsm:text-[20px] md:text-[30px] text-[30px] text-textPrimary font-bold items-center">
           BRIEFOLOGY
         </h1>
       </div>
-      <div className=" w-[50%] h-full"></div>
+      <div className="flex xsm:justify-center xsm:w-full md:w-[30%]  h-full md:justify-end">
+        <Link href="/abc" className="mr-4 cursor-pointer">
+          <Twitter />
+        </Link>
+        <Link href="/abc" className=" cursor-pointer">
+          <Linkedin className="cursor-pointer" />
+        </Link>
+      </div>
     </div>
   );
 }
