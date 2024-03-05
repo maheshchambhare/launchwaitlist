@@ -54,7 +54,7 @@ const Header = () => {
         <p
           className="text-textSecondary font-poppins font-normal  mt-2 dark:text-textSecondary
           text-center
-               xsm:text-[10px] xsm:leading-[15px]
+          xsm:text-[10px] xsm:leading-[15px]
         sm:text-[12px] sm:leading-[20px]
         md:text-[15px] md:leading-[23px]
         lg:text-[20px] lg:leading-[28px]
@@ -169,8 +169,8 @@ const SkeletonFour = () => {
       <p className="font-bold text-4xl text-white">Sapiens</p>
       <p className="font-normal text-base text-white"></p>
       <p className="font-normal text-base my-4 max-w-lg text-neutral-200">
-        Interesting and provocative... It gives you a sense of how briefly we've
-        been on this Earth
+        Interesting and provocative... It gives you a sense of how briefly we
+        have been on this Earth
       </p>
     </div>
   );
