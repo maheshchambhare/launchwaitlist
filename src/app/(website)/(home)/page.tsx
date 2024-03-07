@@ -6,7 +6,7 @@ import { Metadata } from "next";
 
 export default function Home() {
   return (
-    <main className="flex flex-col  min-h-[100vh]">
+    <main className="flex flex-col w-[100vw] min-h-[100vh] overflow-hidden">
       <div className="relative h-[100vh] w-full  ">
         <div className="absolute   inset-0 -z-10 h-full w-full items-center px-5  xsm:[background:radial-gradient(125%_125%_at_50%_10%,#0F0F0F_50%,#030637_100%)] lg:[background:radial-gradient(125%_125%_at_50%_10%,#0F0F0F_30%,#030637_100%)] " />
         <div className="w-full h-full flex justify-start   ">
