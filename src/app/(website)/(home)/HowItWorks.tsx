@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import features from "@/utils/data/features.json";
 import Button from "@/app/components/ui/Button";
@@ -49,8 +50,16 @@ function HowItWorks() {
           );
         })}
       </div>
-      <div className="mt-6 max-w-max mx-auto">
-        <Button title="Subscribe" />
+      <div className="mt-6 mb-6 max-w-max mx-auto">
+        <Button
+          onClick={() => {
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          }}
+          title="Subscribe"
+        />
       </div>
     </div>
   );
