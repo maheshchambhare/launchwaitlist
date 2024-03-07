@@ -1,3 +1,4 @@
+"use client";
 import Button from "@/app/components/ui/Button";
 import { InputCustom } from "@/app/components/ui/Input";
 import { Spotlight } from "@/app/components/ui/Spotlight";
@@ -15,8 +16,39 @@ import {
   DialogTrigger,
 } from "@/app/components/ui/Dialog";
 import { Label } from "@/app/components/ui/Label";
+import subscibe from "@/actions/subscribe";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import success from "@/app/assets/done.webp";
+import error from "@/app/assets/error.webp";
+import supabase from "@/utils/supabase";
+
+const verifyEmail = (email: string) => {
+  const emailRegex: RegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+  const validEmail = emailRegex.test(email);
+
+  return validEmail;
+};
 
 const Header = () => {
+  const [email, setEmail] = useState("");
+  const [verifyOtpServer, setVerifyOtpServer]: any = useState("");
+  const [verifyOtp, setVerifyOtp] = useState("");
+  const [validEmail, setValidEmail] = useState(true);
+  const [duplicateEmail, setDuplicateEmail] = useState(false);
+  const [duplicateEmailVer, setDuplicateEmailVer] = useState(false);
+  const [isEmailVerified, setIsEmailVerified]: any = useState(null);
+  const [resendEmailtimer, setResendEmailtimer]: any = useState(30);
+
+  useEffect(() => {
+    if (verifyOtpServer !== "" && resendEmailtimer > 0) {
+      setTimeout(() => {
+        setResendEmailtimer(resendEmailtimer - 1);
+      }, 1000);
+    }
+  }, [verifyOtpServer, resendEmailtimer]);
+
   return (
     <div className="h-[80vh] w-full    relative flex  items-center justify-between dark">
       <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[80%] xl:w-[80%] 2xl:w-[60%] mx-auto ">
@@ -68,20 +100,219 @@ const Header = () => {
           the information you need, when you need it.
         </p>
 
-        <div className="w-full xsm:flex-col lg:flex-row   flex justify-center items-center mt-4 mx-auto mMax:ml-0 dark:text-white">
+        <div className="relative w-full xsm:flex-col lg:flex-row   flex justify-center items-center mt-4 mx-auto mMax:ml-0 dark:text-white">
           <LabelInputContainer className="w-[70%] max-w-[300px] mr-4">
             {/* <Label htmlFor="email">Email Address</Label> */}
-            <InputCustom id="email" placeholder="user@gmail.com" type="email" />
+            <InputCustom
+              id="email"
+              placeholder="user@gmail.com"
+              onBlur={(e) => {
+                const isValidMail = verifyEmail(e.target.value);
+                setValidEmail(isValidMail);
+              }}
+              onChange={(e: any) => {
+                setEmail(e.target.value);
+              }}
+              type="email"
+              className={`${
+                validEmail ? "dark:text-white" : "dark:text-red-500"
+              }`}
+            />
+            {!validEmail && (
+              <p className=" bottom-[-18px]  text-[12px]  text-red-500">
+                please enter valid email address
+              </p>
+            )}
           </LabelInputContainer>
           <div className="xsm:mt-4 lg:mt-0">
             <Dialog>
               <DialogTrigger>
-                <Button title="Subscribe" />
+                <Button
+                  onClick={async () => {
+                    const isEmailValid = verifyEmail(email);
+                    setValidEmail(isEmailValid);
+                    if (isEmailValid) {
+                      const response = await subscibe(email);
+                      setVerifyOtpServer(response.code);
+                    }
+
+                    const { data, error } = await supabase
+                      .from("emails")
+                      .select()
+                      .eq("email", email);
+
+                    console.log(data, "OOOOO");
+
+                    if (data == null || data?.length == 0) {
+                      await supabase
+                        .from("emails")
+                        .insert({ email: email, verified: false });
+                    } else {
+                      if (data[0]?.verified) {
+                        setDuplicateEmailVer(true);
+                      } else {
+                        setDuplicateEmail(true);
+                      }
+                    }
+                  }}
+                  title="Subscribe"
+                />
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Few more steps?</DialogTitle>
+                  {/* <DialogTitle>Few more steps?</DialogTitle> */}
                   <DialogDescription>
+                    {isEmailVerified == null && !duplicateEmailVer && (
+                      <div className="relative flex  flex-col justify-center overflow-hidden ">
+                        <div className="relative  px-6 pt-4 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
+                          <div className="mx-auto flex w-full max-w-md flex-col space-y-16">
+                            <div className="flex flex-col items-center justify-center text-center space-y-2">
+                              <div className="font-semibold text-3xl">
+                                <p>Email Verification</p>
+                              </div>
+                              <div className="flex flex-col text-sm font-medium text-gray-400">
+                                <p>
+                                  We have sent a code to your email at
+                                  {" " + email}
+                                </p>
+                                {duplicateEmail && (
+                                  <p>
+                                    Email already exist in our system,not
+                                    verified
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div>
+                              <form action="" method="post">
+                                <div className="flex flex-col space-y-8">
+                                  <div className="flex flex-row items-center justify-between mx-auto w-full max-w-xs">
+                                    <input
+                                      className="w-full dark:bg-transparent h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-sm  border-b-2 border-gray-200 text-lg   "
+                                      type="text"
+                                      name=""
+                                      id=""
+                                      onChange={(e) => {
+                                        setVerifyOtp(e.target.value);
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div className="flex flex-col space-y-5">
+                                    <div>
+                                      <button
+                                        onClick={async () => {
+                                          if (verifyOtpServer == verifyOtp) {
+                                            setIsEmailVerified(true);
+
+                                            const { error, data } =
+                                              await supabase
+                                                .from("emails")
+                                                .update({ verified: true })
+                                                .eq("email", email);
+
+                                            console.log(
+                                              data,
+                                              error,
+                                              "ADDTOTABLE"
+                                            );
+                                            return;
+                                          }
+
+                                          setIsEmailVerified(false);
+                                        }}
+                                        className="flex flex-row items-center justify-center text-center w-full border rounded-xl outline-none py-5 bg-blue-700 border-none text-white text-sm shadow-sm"
+                                      >
+                                        Verify Email
+                                      </button>
+                                    </div>
+
+                                    <div className="flex flex-row items-center justify-center text-center text-sm font-medium space-x-1 text-gray-500">
+                                      <p>Did not recieve code?</p>{" "}
+                                      {resendEmailtimer == 0 ? (
+                                        <p
+                                          className="flex flex-row items-center text-blue-600 cursor-pointer"
+                                          onClick={async (e) => {
+                                            setResendEmailtimer(30);
+                                            const response = await subscibe(
+                                              email
+                                            );
+                                            setVerifyOtpServer(response.code);
+                                          }}
+                                        >
+                                          Resend
+                                        </p>
+                                      ) : (
+                                        <p className="flex flex-row items-center text-blue-600">
+                                          Resend in {resendEmailtimer}s
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {duplicateEmailVer && (
+                      <div className="relative flex  flex-col justify-center overflow-hidden ">
+                        <div className="relative  px-6 pt-4 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
+                          <div className="mx-auto flex w-full max-w-md flex-col space-y-16">
+                            <div className="flex flex-col items-center justify-center text-center space-y-2">
+                              <div className="font-semibold text-3xl">
+                                <p>Duplicate Email</p>
+                              </div>
+                              <div className="flex flex-row text-sm font-medium text-gray-400">
+                                <p>Email already exist in our system</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isEmailVerified !== null &&
+                      (isEmailVerified ? (
+                        <div className="flex flex-col justify-center items-center">
+                          <Image
+                            height="300"
+                            width="300"
+                            alt="done"
+                            className="w-full max-w-[200px] object-contain"
+                            src={success}
+                          />
+                          <p className="text-center mt-4  font-mont text-lg dark:text-white mb-4">
+                            Email is verified
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col justify-center items-center">
+                          <Image
+                            height="400"
+                            width="400"
+                            alt="done"
+                            className="w-full max-w-[200px] object-contain"
+                            src={error}
+                          />
+                          <p className="text-center mt-[-20px] font-mont text-lg dark:text-red-400 mb-4">
+                            Entered OTP is wrong
+                          </p>
+                          <Button
+                            onClick={async () => {
+                              setIsEmailVerified(null);
+                            }}
+                            title="Go Back"
+                          />
+                        </div>
+                      ))}
+                    {/* <InputCustom
+                      id="verificationCode"
+                      placeholder={"Verification Code"}
+                    />
                     {questions.map((d: { question: string }, index: number) => {
                       return (
                         <div key={index} className="my-4 ">
@@ -91,8 +322,8 @@ const Header = () => {
                           />
                         </div>
                       );
-                    })}
-                    <Button title="Submit" />
+                    })} */}
+                    {/* <Button title="Submit" /> */}
                   </DialogDescription>
                 </DialogHeader>
               </DialogContent>
@@ -101,7 +332,7 @@ const Header = () => {
         </div>
 
         <p
-          className="text-textSecondary font-poppins font-normal  mt-2 dark:text-white
+          className="text-textSecondary font-poppins font-normal  mt-4 dark:text-white
           text-center
                xsm:text-[10px] xsm:leading-[15px]
         sm:text-[12px] sm:leading-[20px]
